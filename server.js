@@ -36,22 +36,28 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('combined'));
 
 // Database connection
-// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finder', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// })
-// .then(() => console.log('Connected to MongoDB'))
-// .catch(err => console.error('MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finder', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('✅ Connected to MongoDB Atlas');
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err.message);
+    console.log('⚠️  Using fallback mode');
+  }
+};
 
-// Temporary: Skip MongoDB connection for now
-console.log('⚠️  MongoDB connection skipped - configure MongoDB to enable database features');
+// Initialize database connection
+connectDB();
 
-// Routes
-// app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/users', require('./routes/users'));
-// app.use('/api/posts', require('./routes/posts'));
-// app.use('/api/payments', require('./routes/payments'));
-// app.use('/api/notifications', require('./routes/notifications'));
+// Load routes after database connection attempt
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/posts', require('./routes/posts'));
+app.use('/api/payments', require('./routes/payments'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Temporary: Basic test routes
 app.get('/api/test', (req, res) => {
